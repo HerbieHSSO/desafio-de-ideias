@@ -5,10 +5,14 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
+
+
 Adafruit_MPU6050 mpu;
 const int trigPin = 9;
 const int echoPin = 10;
 bool movimentou;
+bool movimentos[] = {};
+int i = 0;
 // defines variables
 long duration;
 int distance;
@@ -18,7 +22,7 @@ void setup(void) {
   pinMode(echoPin, INPUT); // Sets the echoPin as an Input
   Serial.begin(115200);
   while (!Serial)
-    delay(20); // 
+    delay(10); // 
 
   Serial.println("Adafruit MPU6050 test!");
 
@@ -141,13 +145,27 @@ void loop() {
   Serial.println(acceleration);
 
   if (distance <= 10) {
-    if (acceleration  >= 10) {
-      Serial.println("Movimentou");
+    if (acceleration  >= 8) {
       movimentou = true;
     } else {
       movimentou = false;
     }
   }
+  unsigned int interval = 500;
+  float timeElapsed = millis();  
+  while ((millis() - timeElapsed) < interval) {
+    i++;
+    movimentos[i] = movimentou;
+  }
+  bool allFalse;
+  bool allTrue = true;
+  for(i = 0; i < sizeof(movimentos); i++)
+      if ( !movimentos[i] )
+          break;
+  if (i == true){
+    Serial.println("movimentou-se");
+  }
+
 
   delay(500);
 }
