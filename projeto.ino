@@ -4,10 +4,17 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
+#include <RH_ASK.h>
+#ifdef RH_HAVE_HARDWARE_SPI
+#include <SPI.h> // Not actually used but needed to compile
+#endif
 
-
-
+RH_ASK driver;
 Adafruit_MPU6050 mpu;
+
+int contagem = 0;
+
+
 const int trigPin = 9;
 const int echoPin = 10;
 bool movimentou;
@@ -94,12 +101,46 @@ void setup(void) {
     break;
   }
 
-  Serial.println("");
+
+
+    Serial.println("");
   delay(100);
 }
 
+
+
+
 void loop() {
-  // Clears the trigPin
+
+  int distance = distancia();
+
+  bool seacelerou = seAcelerou();
+
+  if (seacelerou == true) {
+    if (distance < 10) {
+      contagem++;
+    }
+     while (true) {
+      distance = distancia();
+      delay(100);
+      
+      if (distance > 10) {
+        Serial.print("contagem: ");
+        Serial.println(contagem);
+        break;
+      }
+    }
+
+
+  }
+  
+
+
+
+
+  delay(500);
+}
+int distancia() {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   // Sets the trigPin on HIGH state for 10 micro seconds
@@ -110,62 +151,25 @@ void loop() {
   duration = pulseIn(echoPin, HIGH);
   // Calculating the distance
   distance = duration * 0.034 / 2;
+  return distance;
+}
+bool seAcelerou(){
+
+
   /* Get new sensor events with the readings */
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
-
-  /* Print out the values */
-  Serial.print("Acceleration X: ");
-  Serial.print(a.acceleration.x);
-  Serial.print(", Y: ");
-  Serial.print(a.acceleration.y);
-  Serial.print(", Z: ");
-  Serial.print(a.acceleration.z);
-  Serial.println(" m/s^2");
-
-  Serial.print("Rotation X: ");
-  Serial.print(g.gyro.x);
-  Serial.print(", Y: ");
-  Serial.print(g.gyro.y);
-  Serial.print(", Z: ");
-  Serial.print(g.gyro.z);
-  Serial.println(" rad/s");
-
-  Serial.print("Temperature: ");
-  Serial.print(temp.temperature);
-  Serial.println(" degC");
-
-  Serial.println("");
-  Serial.print("Distance: ");
-  Serial.println(distance);
+  
 
   acceleration = a.acceleration.x + a.acceleration.y + a.acceleration.z;
-  Serial.println("");
-  Serial.print("acceleration: ");
-  Serial.println(acceleration);
 
-  if (distance <= 10) {
-    if (acceleration  >= 8) {
+    if (acceleration  > 10) {
       movimentou = true;
     } else {
       movimentou = false;
     }
-  }
-  unsigned int interval = 500;
-  float timeElapsed = millis();  
-  while ((millis() - timeElapsed) < interval) {
-    i++;
-    movimentos[i] = movimentou;
-  }
-  bool allFalse;
-  bool allTrue = true;
-  for(i = 0; i < sizeof(movimentos); i++)
-      if ( !movimentos[i] )
-          break;
-  if (i == true){
-    Serial.println("movimentou-se");
-  }
 
+    return movimentou;
+  
 
-  delay(500);
 }
