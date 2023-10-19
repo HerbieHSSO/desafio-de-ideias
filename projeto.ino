@@ -14,6 +14,7 @@ Adafruit_MPU6050 mpu;
 
 int contagem = 0;
 
+String InBytes;
 
 const int trigPin = 9;
 const int echoPin = 10;
