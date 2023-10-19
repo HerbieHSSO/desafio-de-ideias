@@ -16,8 +16,8 @@ int contagem = 0;
 
 String InBytes;
 
-const int trigPin = 9;
-const int echoPin = 10;
+const int trigPin = 10;
+const int echoPin = 11;
 bool movimentou;
 bool movimentos[] = {};
 int i = 0;
@@ -118,14 +118,14 @@ void loop() {
   bool seacelerou = seAcelerou();
 
   if (seacelerou == true) {
-    if (distance < 10) {
+    if (distance < 15) {
       contagem++;
     }
      while (true) {
       distance = distancia();
       delay(100);
       
-      if (distance > 10) {
+      if (distance > 15) {
         Serial.print("contagem: ");
         Serial.println(contagem);
         break;
@@ -139,7 +139,7 @@ void loop() {
 
 
 
-  delay(500);
+  delay(300);
 }
 int distancia() {
   digitalWrite(trigPin, LOW);
@@ -162,9 +162,9 @@ bool seAcelerou(){
   mpu.getEvent(&a, &g, &temp);
   
 
-  acceleration = a.acceleration.x + a.acceleration.y + a.acceleration.z;
-
-    if (acceleration  > 10) {
+  acceleration = a.acceleration.x + a.acceleration.y + 2;
+    
+    if (acceleration  > 3) {
       movimentou = true;
     } else {
       movimentou = false;

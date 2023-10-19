@@ -5,11 +5,12 @@
 '''
 
 import serial #Importa a biblioteca
-
-
-  
-x = []
-y = []
+import time
+import matplotlib.animation as animation
+from datetime import datetime
+import matplotlib.pyplot as plt 
+contagem = []
+horario = []
 # Creating the Figure instance 
 
 # showing the plot 
@@ -20,15 +21,42 @@ while True: #Loop para a conexão com o Arduino
     print('Arduino conectado')
     break
 
-   
+x = []
+y = []
+count = 0
+# to run GUI event loop
 
-while True: #Loop principal
+# here we are creating sub plots
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+
+
+def animate(i, x, y):
+
     text = arduino.readline().decode().replace('\r\n', '\n')
     print(text)
     if 'contagem' in text:
-      
-        y.append(int(text.split('contagem: ')[1]))
+        now = datetime.now().strftime('%H:%M:%S.%f')
+        print(text)
+        contagem = int(text.split('contagem: ')[1])
+
+
+        x.append(contagem)
+        y.append(now)
+            
+    # Draw x and y lists
+        x = x[-4:]
+        y = y[-4:]
+        with open("banco_de_dados", 'a') as file1:
+            file1.write(f"{contagem},{now}\n")
+        ax.set_title('Contagem de Movimento')
+        ax.clear()
+        ax.plot(y, x)
+
+
+  
         # update scatter data
 
 
-
+ani = animation.FuncAnimation(fig, animate, fargs=(x, y), interval=1000)
+plt.show()
